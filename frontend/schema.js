@@ -41,7 +41,6 @@ const tables = {
     path: "/products",
     id: "product_id",
     searchLabel: "Search products",
-    canDelete: false,
     filter: { key: "status", options: STATUS_OPTIONS },
     columns: [
       "product_id",
@@ -73,7 +72,6 @@ const tables = {
     path: "/storage-sites",
     id: "site_id",
     searchLabel: "Search storage sites",
-    canDelete: false,
     columns: ["site_id", "site_name", "city", "state"],
     fields: [
       input("site_name", "Site name", "text", true),
@@ -87,7 +85,6 @@ const tables = {
     path: "/sources",
     id: "source_id",
     searchLabel: "Search sources",
-    canDelete: false,
     filter: { key: "source_type", options: SOURCE_OPTIONS },
     columns: ["source_id", "source_name", "source_type"],
     fields: [
@@ -117,7 +114,6 @@ const tables = {
     id: "transaction_id",
     searchLabel: "Search transactions",
     canEdit: false,
-    canDelete: false,
     filter: { key: "transaction_type", options: TRANSACTION_OPTIONS },
     columns: [
       "transaction_id",
