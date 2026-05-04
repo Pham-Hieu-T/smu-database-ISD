@@ -2,7 +2,21 @@
 
 HTML/CSS/JS frontend for the project.
 
-## Run
+## Demo Run
+
+For the final demo, do not run this folder by itself. Run the full backend app from the repo root:
+
+```bash
+python run_app.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Frontend-Only Preview
 
 From this folder:
 
@@ -16,7 +30,9 @@ Open:
 http://localhost:5173
 ```
 
-For the final standalone project, serve this frontend from the backend app and expose the backend routes under the same origin:
+This preview only loads the static files. It will show the backend as offline unless another server is also providing `/api`.
+
+For the final standalone project, the backend app serves this frontend and exposes backend routes under the same origin:
 
 ```text
 /api
@@ -37,7 +53,7 @@ Responses:
 Errors:
 
 ```json
-{ "error": { "message": "Validation failed", "fields": { "field_name": "Message" } } }
+{ "error": { "message": "Validation failed" } }
 ```
 
 Required routes, relative to `/api`:
@@ -83,4 +99,4 @@ GET /reports/dead-stock
 
 Use DB-aligned `snake_case` JSON keys. Generated database columns such as `total_cost` and `total_amount` should be returned by `GET` routes but are not submitted by the frontend forms.
 
-During local frontend-only development, the static page will show the backend as offline unless a backend is also serving `/api`. For demo/submission, prefer one backend process that serves both the static frontend and `/api` routes so users never need to configure API access manually.
+During local frontend-only development, the static page will show the backend as offline unless a backend is also serving `/api`. For demo/submission, use one backend process that serves both the static frontend and `/api` routes so users never need to configure API access manually.

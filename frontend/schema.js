@@ -58,7 +58,7 @@ const tables = {
       input("product_name", "Product name", "text", true),
       select("status", "Status", STATUS_OPTIONS),
       input("cost", "Cost", "number", true, "0", "0.01"),
-      input("profit", "Profit", "number", true, "0", "0.01"),
+      input("profit", "Profit", "number", true, null, "0.01"),
       select("product_condition", "Condition", CONDITION_OPTIONS),
       input("date_added", "Date added", "date", true),
       input("date_sold", "Date sold", "date"),
@@ -93,11 +93,11 @@ const tables = {
     ],
   },
   purchases: {
-    title: "Purchases",
-    singular: "Purchase",
+    title: "Purchase Records",
+    singular: "Purchase Record",
     path: "/purchases",
     id: "purchase_id",
-    searchLabel: "Search purchases",
+    searchLabel: "Search purchase records",
     columns: ["purchase_id", "purchase_date", "purchase_quantity", "unit_cost", "total_cost", "product_id", "source_id"],
     fields: [
       input("purchase_date", "Purchase date", "date", true),

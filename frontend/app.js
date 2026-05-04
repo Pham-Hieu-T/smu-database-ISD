@@ -453,14 +453,124 @@ async function saveRow(event, table, oldRow) {
   const id = oldRow?.[table.id];
   const path = id == null ? table.path : `${table.path}/${encodeURIComponent(id)}`;
   const method = id == null ? "POST" : "PUT";
+  const validationMessage = validateRow(table, data, oldRow);
+
+  if (validationMessage) {
+    document.querySelector("#form-error").textContent = validationMessage;
+    return;
+  }
 
   try {
     await apiSend(path, method, data);
+    clearLookupCache();
     closeModal();
     showTablePage(table);
   } catch (error) {
-    document.querySelector("#form-error").textContent = error.message;
+    document.querySelector("#form-error").textContent = userMessage(error);
   }
+}
+
+// Frontend validation mirrors the critical database rules for demo safety.
+function validateRow(table, data, oldRow = null) {
+  if (table.path === "/products") return validateProduct(data);
+  if (table.path === "/storage-sites") return validateStorageSite(data);
+  if (table.path === "/purchases") return validatePurchase(data);
+  if (table.path === "/transactions") return validateTransaction(data, oldRow);
+  return "";
+}
+
+function validateProduct(data) {
+  if (!data.product_name) return "Product name is required.";
+  if (!Number.isFinite(data.cost) || data.cost < 0) return "Cost must be 0 or greater.";
+  if (!Number.isFinite(data.profit)) return "Profit must be a valid number.";
+  if (!Number.isInteger(data.product_quantity) || data.product_quantity < 0) {
+    return "Quantity must be a whole number 0 or greater.";
+  }
+  if (!data.date_added) return "Date added is required.";
+  if (data.date_sold && data.date_sold < data.date_added) {
+    return "Date sold cannot be earlier than date added.";
+  }
+
+  if (["IN_STOCK", "RESERVED"].includes(data.status)) {
+    if (data.product_quantity <= 0) return "In-stock and reserved products must have quantity greater than 0.";
+    if (data.date_sold) return "In-stock and reserved products cannot have a sold date.";
+  }
+
+  if (data.status === "OUT_OF_STOCK") {
+    if (data.product_quantity !== 0) return "Out-of-stock products must have quantity 0.";
+    if (data.date_sold) return "Out-of-stock products cannot have a sold date.";
+  }
+
+  if (data.status === "SOLD") {
+    if (data.product_quantity !== 0) return "Sold products must have quantity 0.";
+    if (!data.date_sold) return "Sold products must have a sold date.";
+  }
+
+  if (data.status === "DISCONTINUED" && data.date_sold) {
+    return "Discontinued products cannot have a sold date.";
+  }
+
+  return "";
+}
+
+function validateStorageSite(data) {
+  if (!data.site_name) return "Site name is required.";
+  if (!data.city) return "City is required.";
+  if (!/^[A-Z]{2}$/.test(data.state || "")) return "State must be a two-letter abbreviation.";
+  return "";
+}
+
+function validatePurchase(data) {
+  if (!data.purchase_date) return "Purchase date is required.";
+  if (!Number.isInteger(data.purchase_quantity) || data.purchase_quantity <= 0) {
+    return "Purchase quantity must be a whole number greater than 0.";
+  }
+  if (!Number.isFinite(data.unit_cost) || data.unit_cost < 0) return "Unit cost must be 0 or greater.";
+  if (!data.product_id) return "Choose a product.";
+  if (!data.source_id) return "Choose a source.";
+  return "";
+}
+
+function validateTransaction(data, oldRow = null) {
+  if (!data.transaction_date) return "Transaction date is required.";
+  if (!data.transaction_type) return "Transaction type is required.";
+  if (!Number.isInteger(data.transaction_quantity) || data.transaction_quantity <= 0) {
+    return "Transaction quantity must be a whole number greater than 0.";
+  }
+  if (!Number.isFinite(data.unit_price) || data.unit_price < 0) return "Unit price must be 0 or greater.";
+  if (data.transaction_type === "SALE" && data.unit_price <= 0) {
+    return "Sale transactions must have a unit price greater than 0.";
+  }
+  if (!data.product_id) return "Choose a product.";
+
+  const product = findLookupRow("/products", "product_id", data.product_id);
+  if (!product) return "";
+
+  if (data.transaction_date < product.date_added) {
+    return "Transaction date cannot be earlier than the product date added.";
+  }
+
+  if (transactionEffect(data) < 0) {
+    const oldEffect = oldRow && Number(oldRow.product_id) === Number(data.product_id) ? transactionEffect(oldRow) : 0;
+    const availableAfterUndo = Number(product.product_quantity || 0) - oldEffect;
+
+    if (data.transaction_quantity > availableAfterUndo) {
+      return "Not enough inventory for this transaction.";
+    }
+  }
+
+  return "";
+}
+
+function transactionEffect(row) {
+  const quantity = Number(row.transaction_quantity || 0);
+  if (["PURCHASE", "TRANSFER_IN", "ADJUSTMENT_IN", "RETURN"].includes(row.transaction_type)) return quantity;
+  if (["SALE", "TRANSFER_OUT", "ADJUSTMENT_OUT"].includes(row.transaction_type)) return -quantity;
+  return 0;
+}
+
+function findLookupRow(path, idKey, id) {
+  return (lookupCache[path] || []).find((row) => Number(row[idKey]) === Number(id));
 }
 
 // Delete a row through the backend.
@@ -472,10 +582,15 @@ async function deleteRow(table, row) {
 
   try {
     await apiSend(`${table.path}/${encodeURIComponent(id)}`, "DELETE");
+    clearLookupCache();
     showTablePage(table);
   } catch (error) {
-    window.alert(error.message);
+    window.alert(userMessage(error));
   }
+}
+
+function clearLookupCache() {
+  Object.keys(lookupCache).forEach((key) => delete lookupCache[key]);
 }
 
 // Close the form modal.
@@ -518,7 +633,7 @@ async function apiSend(path, method, data = null) {
   }
 
   if (!response.ok) {
-    throw new Error(body.error?.message || "Request failed.");
+    throw new Error(userMessage(body.error?.message || "Request failed."));
   }
 
   const result = body.data || [];
@@ -546,9 +661,19 @@ function errorHtml(error) {
   return `
     <div class="error-box">
       <strong>Backend unavailable</strong>
-      <p>${escapeHtml(error.message)}</p>
+      <p>${escapeHtml(userMessage(error))}</p>
     </div>
   `;
+}
+
+function userMessage(error) {
+  const message = typeof error === "string" ? error : error?.message || "Request failed.";
+
+  if (/duplicate entry|foreign key|constraint|mysql|sql|data too long|incorrect|out of range/i.test(message)) {
+    return "Database rejected this change. Check required fields and linked records.";
+  }
+
+  return message;
 }
 
 // Format one table cell.

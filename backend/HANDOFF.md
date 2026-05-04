@@ -6,7 +6,7 @@ Frontend and backend are now wired together for the local demo. Use `backend/rea
 
 - Shows pages for dashboard, products, storage sites, sources, purchases, transactions, and reports.
 - Sends all backend requests to `/api`.
-- Shows a offline message when the backend is not running.
+- Shows an offline message when the backend is not running.
 
 ## Demo behavior
 
@@ -121,6 +121,6 @@ GET /api/reports/dead-stock
 - Use `snake_case` JSON keys that match the database columns.
 - Return generated columns like `total_cost` and `total_amount` on GET routes.
 - The frontend does not submit generated columns in forms.
-- For transactions that change stock, update `Product.product_quantity` and insert the matching `Inventory_Transaction` row.
+- For transactions that change stock, keep `Product.product_quantity`, `Product.status`, `Product.date_sold`, and `Product.profit` synchronized with the matching `Inventory_Transaction` row.
 - Let MySQL constraints and the `prevent_negative_inventory` trigger reject invalid data, then return a simple JSON error message.
 - Reports should map to the SQL in `sql/05_queries.sql`.
