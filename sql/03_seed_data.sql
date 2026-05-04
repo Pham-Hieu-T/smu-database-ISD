@@ -16,27 +16,22 @@ TRUNCATE TABLE Source_or_Supplier;
 TRUNCATE TABLE Storage_Site;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================================
--- STORAGE SITES
--- ============================================================
+-- Storage sites
 INSERT INTO Storage_Site (site_id, site_name, city, state) VALUES
     (1, 'Unit 3577', 'Plano', 'TX'),
     (2, 'Unit G76',  'Plano', 'TX'),
     (3, 'Unit 3575', 'Plano', 'TX');
 
--- ============================================================
--- SOURCE / SUPPLIER
--- ============================================================
+
+-- Source/supplier
 INSERT INTO Source_or_Supplier (source_id, source_name, source_type) VALUES
     (1, 'Direct Supply', 'AUCTION');
 
--- ============================================================
--- PRODUCTS
+-- Products with some definitions
 -- product_condition: all GOOD (Grade B) by default
 --   exceptions: STRAZ3000ES (C) and STRAZ5000ES (Apr21 Grade C) = FAIR
 --               SUWL855 (Returns grade) = POOR
 -- profit = total realized profit from sales log
--- ============================================================
 
 -- Site 1: Unit 3577 — TVs (product_id 1–21)
 INSERT INTO Product (
@@ -107,9 +102,7 @@ INSERT INTO Product (
     (49, 'SONY SSCS8',     'IN_STOCK', 132.20,     0.00, 'GOOD', '2026-04-21', NULL,         1,  3),
     (50, 'SONY SUWL855',   'SOLD',      72.48,   324.52, 'POOR', '2026-04-21', '2026-04-27', 0,  3);
 
--- ============================================================
--- PURCHASES (one per product, unit_cost = avg cost from tracker)
--- ============================================================
+-- Purchases (one per product, unit_cost = avg cost from tracker)
 INSERT INTO Purchase_or_Order (purchase_id, purchase_date, purchase_quantity, unit_cost, product_id, source_id) VALUES
     -- Site 1: TVs
     (1,  '2026-04-01', 5,  211.20, 1,  1),
@@ -165,11 +158,10 @@ INSERT INTO Purchase_or_Order (purchase_id, purchase_date, purchase_quantity, un
     (49, '2026-04-21', 1,  130.26, 49, 1),
     (50, '2026-04-21', 1,   70.54, 50, 1);
 
--- ============================================================
--- INVENTORY TRANSACTIONS
--- PURCHASE entries first, then SALE entries chronologically
--- unit_price for PURCHASE = avg cost; for SALE = actual sale price
--- ============================================================
+
+-- Inventory transactions
+-- Purchase entries first, then Sale entries chronologically
+-- unit_price for Purchase = avg cost; for Sale = actual sale price
 
 INSERT INTO Inventory_Transaction (transaction_date, transaction_type, transaction_quantity, unit_price, product_id) VALUES
 -- ── PURCHASE events ──────────────────────────────────────────
@@ -291,9 +283,6 @@ INSERT INTO Inventory_Transaction (transaction_date, transaction_type, transacti
 ('2026-04-28', 'SALE', 1,  599.00, 19),  -- SDM27Q10SB
 ('2026-04-28', 'SALE', 1,  554.00, 33);  -- STRAN1000
 
--- ============================================================
--- Recreate trigger after seed data is loaded
--- ============================================================
 DELIMITER //
 CREATE TRIGGER prevent_negative_inventory
 BEFORE INSERT ON Inventory_Transaction
