@@ -703,7 +703,6 @@ def update_product(product_id: int, body: ProductPayload):
 def delete_product(product_id: int):
     return db_write(lambda cur: _delete_row(cur, "Product", "product_id", product_id))
 
-
 # -------------------------
 # PURCHASE RECORDS
 # -------------------------
@@ -802,7 +801,6 @@ def delete_transaction(transaction_id: int):
 def _delete_row(cur, table_name, id_column, row_id):
     cur.execute(f"DELETE FROM {table_name} WHERE {id_column}=%s", (row_id,))
     return {"deleted": cur.rowcount}
-
 
 # -------------------------
 # REPORTS

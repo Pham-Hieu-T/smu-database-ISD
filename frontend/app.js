@@ -206,15 +206,24 @@ function drawTableRows(table) {
     return matchesSearch && matchesFilter;
   });
 
-  document.querySelector("#table-output").innerHTML = makeTable(rows, table.columns, true);
+  const actions = {
+    edit: table.canEdit !== false,
+    delete: table.canDelete !== false,
+  };
 
-  document.querySelectorAll("[data-edit]").forEach((button) => {
-    button.addEventListener("click", () => openForm(table, rows[Number(button.dataset.edit)]));
-  });
+  document.querySelector("#table-output").innerHTML = makeTable(rows, table.columns, actions);
 
-  document.querySelectorAll("[data-delete]").forEach((button) => {
-    button.addEventListener("click", () => deleteRow(table, rows[Number(button.dataset.delete)]));
-  });
+  if (actions.edit) {
+    document.querySelectorAll("[data-edit]").forEach((button) => {
+      button.addEventListener("click", () => openForm(table, rows[Number(button.dataset.edit)]));
+    });
+  }
+
+  if (actions.delete) {
+    document.querySelectorAll("[data-delete]").forEach((button) => {
+      button.addEventListener("click", () => deleteRow(table, rows[Number(button.dataset.delete)]));
+    });
+  }
 }
 
 // Show the report page and load the selected report.
@@ -253,10 +262,12 @@ async function showReports() {
 }
 
 // Build an HTML table from rows returned by the backend.
-function makeTable(rows, columns, showActions = false) {
+function makeTable(rows, columns, actions = null) {
   if (!rows.length) {
     return `<p class="empty">No rows returned.</p>`;
   }
+
+  const showActions = Boolean(actions && (actions.edit || actions.delete));
 
   return `
     <div class="table-wrap">
@@ -275,7 +286,7 @@ function makeTable(rows, columns, showActions = false) {
                   ${columns.map((column) => `<td>${formatValue(column, row[column])}</td>`).join("")}
                   ${
                     showActions
-                      ? `<td class="actions"><button data-edit="${index}" type="button">Edit</button> <button data-delete="${index}" type="button">Delete</button></td>`
+                      ? `<td class="actions">${actions.edit ? `<button data-edit="${index}" type="button">Edit</button>` : ""} ${actions.delete ? `<button data-delete="${index}" type="button">Delete</button>` : ""}</td>`
                       : ""
                   }
                 </tr>

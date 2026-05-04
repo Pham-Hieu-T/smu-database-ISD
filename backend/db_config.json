@@ -1,7 +1,8 @@
 {
-  "host": "localhost",
-  "port": 3306,
-  "user": "root",
-  "password": "",
-  "database": "inventory_storage_db"
+ "host": "localhost",
+ "port": 3306,
+ "user": "root",
+ "password": "",
+ "database": "inventory_storage_db",
+ "use_pure": true
 }
