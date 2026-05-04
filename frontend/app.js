@@ -5,13 +5,14 @@
 // All backend routes start with /api.
 
 const API = "/api";
-const schema = window.inventorySchema;
+const schema = window.inventorySchema; // Defines the tables, reports, and fields used by the app.
 
 // Main HTML elements used by the app.
 const app = document.querySelector("#app");
 const pageTitle = document.querySelector("#page-title");
 const healthPill = document.querySelector("#health-pill");
 
+//Error Checking
 if (!schema) {
   app.innerHTML = `
     <div class="error-box">
@@ -26,10 +27,10 @@ if (!schema) {
 const { reports, tables } = schema;
 
 // Small amount of page state.
-let currentRoute = getRoute();
-let currentRows = [];
-let currentReportId = "inventory-by-site";
-const lookupCache = {};
+let currentRoute = getRoute(); // current page
+let currentRows = []; // rows currently loaded from backend for table pages
+let currentReportId = "inventory-by-site"; // which report is selected on the reports page
+const lookupCache = {}; //stores dropdwon data from the backend to avoid extra requests
 
 document.querySelectorAll("[data-route]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -493,7 +494,7 @@ async function saveRow(event, table, oldRow) {
   }
 }
 
-// Frontend validation mirrors the critical database rules for demo safety.
+// Frontend validation mirrors the critical database rules
 function validateRow(table, data, oldRow = null) {
   if (table.path === "/products") return validateProduct(data);
   if (table.path === "/storage-sites") return validateStorageSite(data);

@@ -35,6 +35,7 @@ function lookup(key, label, path, idKey, nameKeys, allowedStatuses = null) {
 // columns are shown in the table.
 // fields are shown in the add/edit form.
 const tables = {
+
   products: {
     title: "Products",
     singular: "Product",
@@ -66,6 +67,7 @@ const tables = {
       lookup("site_id", "Storage site", "/storage-sites", "site_id", ["site_name", "city", "state"]),
     ],
   },
+
   "storage-sites": {
     title: "Storage Sites",
     singular: "Storage Site",
@@ -79,6 +81,7 @@ const tables = {
       input("state", "State", "text", true, null, null, 2, true),
     ],
   },
+
   sources: {
     title: "Sources",
     singular: "Source",
@@ -92,6 +95,7 @@ const tables = {
       select("source_type", "Source type", SOURCE_OPTIONS),
     ],
   },
+
   purchases: {
     title: "Purchase Records",
     singular: "Purchase Record",
@@ -107,6 +111,7 @@ const tables = {
       lookup("source_id", "Source", "/sources", "source_id", ["source_name", "source_type"]),
     ],
   },
+
   transactions: {
     title: "Transactions",
     singular: "Transaction",
@@ -132,6 +137,7 @@ const tables = {
       lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"]),
     ],
   },
+  
 };
 
 const reports = [
