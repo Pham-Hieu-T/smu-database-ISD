@@ -25,6 +25,11 @@ function select(key, label, options) {
   return { key, label, type: "select", required: true, options };
 }
 
+// Helper for dropdowns that come from another backend table.
+function lookup(key, label, path, idKey, nameKeys) {
+  return { key, label, type: "lookup", required: true, path, idKey, nameKeys };
+}
+
 // One object per table page in the frontend.
 // path is the backend API route.
 // columns are shown in the table.
@@ -58,7 +63,7 @@ const tables = {
       input("date_added", "Date added", "date", true),
       input("date_sold", "Date sold", "date"),
       input("product_quantity", "Quantity", "number", true, "0", "1"),
-      input("site_id", "Storage site ID", "number", true, "1", "1"),
+      lookup("site_id", "Storage site", "/storage-sites", "site_id", ["site_name", "city", "state"]),
     ],
   },
   "storage-sites": {
@@ -98,8 +103,8 @@ const tables = {
       input("purchase_date", "Purchase date", "date", true),
       input("purchase_quantity", "Quantity", "number", true, "1", "1"),
       input("unit_cost", "Unit cost", "number", true, "0", "0.01"),
-      input("product_id", "Product ID", "number", true, "1", "1"),
-      input("source_id", "Source ID", "number", true, "1", "1"),
+      lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"]),
+      lookup("source_id", "Source", "/sources", "source_id", ["source_name", "source_type"]),
     ],
   },
   transactions: {
@@ -123,7 +128,7 @@ const tables = {
       select("transaction_type", "Transaction type", TRANSACTION_OPTIONS),
       input("transaction_quantity", "Quantity", "number", true, "1", "1"),
       input("unit_price", "Unit price", "number", true, "0", "0.01"),
-      input("product_id", "Product ID", "number", true, "1", "1"),
+      lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"]),
     ],
   },
 };

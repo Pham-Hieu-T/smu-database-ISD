@@ -29,6 +29,7 @@ const { reports, tables } = schema;
 let currentRoute = getRoute();
 let currentRows = [];
 let currentReportId = "inventory-by-site";
+const lookupCache = {};
 
 document.querySelectorAll("[data-route]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -288,10 +289,43 @@ function makeTable(rows, columns, showActions = false) {
 }
 
 // Open the add/edit form modal.
-function openForm(table, row = null) {
+async function openForm(table, row = null) {
   const isEdit = Boolean(row);
+  const modalRoot = document.querySelector("#modal-root");
 
-  document.querySelector("#modal-root").innerHTML = `
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>${isEdit ? "Edit" : "New"} ${table.singular}</h2>
+          <button class="plain-button" id="close-modal" type="button">Close</button>
+        </div>
+        <p class="loading">Loading form choices...</p>
+      </div>
+    </div>
+  `;
+
+  document.querySelector("#close-modal").addEventListener("click", closeModal);
+
+  try {
+    await loadLookupFields(table.fields);
+  } catch (error) {
+    modalRoot.innerHTML = `
+      <div class="modal-backdrop">
+        <div class="modal">
+          <div class="modal-header">
+            <h2>${isEdit ? "Edit" : "New"} ${table.singular}</h2>
+            <button class="plain-button" id="close-modal" type="button">Close</button>
+          </div>
+          ${errorHtml(error)}
+        </div>
+      </div>
+    `;
+    document.querySelector("#close-modal").addEventListener("click", closeModal);
+    return;
+  }
+
+  modalRoot.innerHTML = `
     <div class="modal-backdrop">
       <form class="modal" id="row-form">
         <div class="modal-header">
@@ -315,10 +349,25 @@ function openForm(table, row = null) {
   document.querySelector("#row-form").addEventListener("submit", (event) => saveRow(event, table, row));
 }
 
+// Load dropdown choices that come from another table.
+async function loadLookupFields(fields) {
+  const lookupFields = fields.filter((field) => field.type === "lookup");
+
+  for (const field of lookupFields) {
+    if (!lookupCache[field.path]) {
+      lookupCache[field.path] = await apiGet(field.path);
+    }
+  }
+}
+
 // Make one form field from the schema.
 function fieldHtml(field, value = "") {
   const required = field.required ? "required" : "";
   const safeValue = value == null ? "" : escapeAttr(value);
+
+  if (field.type === "lookup") {
+    return lookupHtml(field, value);
+  }
 
   if (field.type === "select") {
     return `
@@ -348,6 +397,42 @@ function fieldHtml(field, value = "") {
   `;
 }
 
+// Make a dropdown for product_id, site_id, or source_id.
+function lookupHtml(field, value = "") {
+  const rows = lookupCache[field.path] || [];
+
+  return `
+    <label>
+      ${escapeHtml(field.label)}
+      <select name="${field.key}" required>
+        <option value="">Choose ${escapeHtml(field.label.toLowerCase())}</option>
+        ${rows.map((row) => lookupOptionHtml(field, row, value)).join("")}
+      </select>
+    </label>
+  `;
+}
+
+// Make one option inside a lookup dropdown.
+function lookupOptionHtml(field, row, value) {
+  const id = row[field.idKey];
+  const selected = String(id) === String(value) ? "selected" : "";
+
+  return `
+    <option value="${escapeAttr(id)}" ${selected}>
+      ${escapeHtml(lookupLabel(field, row))}
+    </option>
+  `;
+}
+
+// Show the ID plus a useful name, like "#2 - Main Site / Dallas / TX".
+function lookupLabel(field, row) {
+  const pieces = field.nameKeys
+    .map((key) => row[key])
+    .filter((piece) => piece != null && piece !== "");
+
+  return `#${row[field.idKey]} - ${pieces.join(" / ")}`;
+}
+
 // Send form data to the backend.
 async function saveRow(event, table, oldRow) {
   event.preventDefault();
@@ -359,8 +444,8 @@ async function saveRow(event, table, oldRow) {
     const rawValue = form.elements[field.key].value.trim();
     let value = field.uppercase ? rawValue.toUpperCase() : rawValue;
 
-    if (field.type === "number") value = value === "" ? null : Number(value);
-    if (field.type !== "number") value = value === "" ? null : value;
+    if (field.type === "number" || field.type === "lookup") value = value === "" ? null : Number(value);
+    if (field.type !== "number" && field.type !== "lookup") value = value === "" ? null : value;
 
     data[field.key] = value;
   });
