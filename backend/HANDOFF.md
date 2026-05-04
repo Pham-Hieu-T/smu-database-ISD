@@ -1,6 +1,6 @@
 # Backend Handoff
 
-Frontend is ready in `frontend/`. The backend still needs to connect that GUI to MySQL.
+Frontend and backend are now wired together for the local demo. Use `backend/readme.md` for the full run instructions.
 
 ## What the frontend does
 
@@ -8,29 +8,24 @@ Frontend is ready in `frontend/`. The backend still needs to connect that GUI to
 - Sends all backend requests to `/api`.
 - Shows a offline message when the backend is not running.
 
-## How to preview the frontend
+## Demo behavior
+
+For the demo, run one backend app that serves both:
+
+- static files from `frontend/`
+- JSON routes under `/api`
 
 From the repo root:
 
 ```bash
-cd frontend
-python3 -m http.server 5173
+python run_app.py
 ```
 
 Open:
 
 ```text
-http://localhost:5173
+http://127.0.0.1:8000
 ```
-
-This is frontend preview only. It will show backend offline until `/api` exists.
-
-## Final backend behavior
-
-For the demo, we should run one backend app that serves both, that we can do later:
-
-- static files from `frontend/`
-- JSON routes under `/api`
 
 
 ## Database config

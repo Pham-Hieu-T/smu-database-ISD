@@ -1,15 +1,21 @@
 import json
+from pathlib import Path
+
 import mysql.connector
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 
 # -------------------------
 # Config + DB
 # -------------------------
+BACKEND_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = BACKEND_DIR.parent
+CONFIG_FILE = BACKEND_DIR / "db_config.json"
+FRONTEND_DIR = PROJECT_DIR / "frontend"
+
 def get_connection():
-    with open("db_config.json") as f:
+    with open(CONFIG_FILE, encoding="utf-8") as f:
         config = json.load(f)
     return mysql.connector.connect(**config)
 
@@ -25,23 +31,31 @@ def db_error(err):
 # -------------------------
 # App
 # -------------------------
-app = FastAPI()
-
-# Enable CORS for frontend communication
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 # -------------------------
 # Health
 # -------------------------
 @app.get("/api/health")
 def health():
-    return success("ok")
+    conn = None
+    cur = None
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.fetchone()
+        return success({"server": "ok", "database": "ok"})
+    except mysql.connector.Error as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": {"message": f"Database unavailable: {e}"}}
+        )
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 # -------------------------
 # STORAGE SITES
@@ -576,4 +590,4 @@ def report_dead_stock():
 # -------------------------
 # Serve frontend
 # -------------------------
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
