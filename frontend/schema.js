@@ -26,8 +26,8 @@ function select(key, label, options) {
 }
 
 // Helper for dropdowns that come from another backend table.
-function lookup(key, label, path, idKey, nameKeys) {
-  return { key, label, type: "lookup", required: true, path, idKey, nameKeys };
+function lookup(key, label, path, idKey, nameKeys, allowedStatuses = null) {
+  return { key, label, type: "lookup", required: true, path, idKey, nameKeys, allowedStatuses };
 }
 
 // One object per table page in the frontend.
@@ -106,7 +106,7 @@ const tables = {
       input("purchase_date", "Purchase date", "date", true),
       input("purchase_quantity", "Quantity", "number", true, "1", "1"),
       input("unit_cost", "Unit cost", "number", true, "0", "0.01"),
-      lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"]),
+      lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"], ["IN_STOCK", "OUT_OF_STOCK", "RESERVED"]),
       lookup("source_id", "Source", "/sources", "source_id", ["source_name", "source_type"]),
     ],
   },

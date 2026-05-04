@@ -410,7 +410,7 @@ function fieldHtml(field, value = "") {
 
 // Make a dropdown for product_id, site_id, or source_id.
 function lookupHtml(field, value = "") {
-  const rows = lookupCache[field.path] || [];
+  const rows = lookupRows(field, value);
 
   return `
     <label>
@@ -421,6 +421,18 @@ function lookupHtml(field, value = "") {
       </select>
     </label>
   `;
+}
+
+// Purchase records should not offer sold/discontinued products for new rows.
+function lookupRows(field, value = "") {
+  const rows = lookupCache[field.path] || [];
+
+  if (!field.allowedStatuses) return rows;
+
+  return rows.filter((row) => {
+    const isCurrentValue = String(row[field.idKey]) === String(value);
+    return isCurrentValue || field.allowedStatuses.includes(row.status);
+  });
 }
 
 // Make one option inside a lookup dropdown.
