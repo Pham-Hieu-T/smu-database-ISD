@@ -152,7 +152,7 @@ function summaryBox(label, value) {
   `;
 }
 
-// Show one CRUD table page, like Products or Transactions.
+// Show one CRUD table page, like Products or Inventory Transactions.
 async function showTablePage(table) {
   app.innerHTML = `
     <section class="panel">
@@ -556,10 +556,10 @@ function validatePurchase(data) {
 }
 
 function validateTransaction(data, oldRow = null) {
-  if (!data.transaction_date) return "Transaction date is required.";
-  if (!data.transaction_type) return "Transaction type is required.";
+  if (!data.transaction_date) return "Inventory transaction date is required.";
+  if (!data.transaction_type) return "Inventory transaction type is required.";
   if (!Number.isInteger(data.transaction_quantity) || data.transaction_quantity <= 0) {
-    return "Transaction quantity must be a whole number greater than 0.";
+    return "Inventory transaction quantity must be a whole number greater than 0.";
   }
   if (!Number.isFinite(data.unit_price) || data.unit_price < 0) return "Unit price must be 0 or greater.";
   if (data.transaction_type === "SALE" && data.unit_price <= 0) {
@@ -571,7 +571,7 @@ function validateTransaction(data, oldRow = null) {
   if (!product) return "";
 
   if (data.transaction_date < product.date_added) {
-    return "Transaction date cannot be earlier than the product date added.";
+    return "Inventory transaction date cannot be earlier than the product date added.";
   }
 
   if (transactionEffect(data) < 0) {

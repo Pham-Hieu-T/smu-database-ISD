@@ -113,11 +113,11 @@ const tables = {
   },
 
   transactions: {
-    title: "Transactions",
-    singular: "Transaction",
+    title: "Inventory Transactions",
+    singular: "Inventory Transaction",
     path: "/transactions",
     id: "transaction_id",
-    searchLabel: "Search transactions",
+    searchLabel: "Search inventory transactions",
     canEdit: false,
     filter: { key: "transaction_type", options: TRANSACTION_OPTIONS },
     columns: [
@@ -146,7 +146,7 @@ const reports = [
   ["status-summary", "Status Summary"],
   ["aging", "Aging"],
   ["supplier-history", "Supplier History"],
-  ["transaction-history", "Transaction History"],
+  ["transaction-history", "Inventory Transaction History"],
   ["sales-profit", "Sales Profit"],
   ["profit-summary", "Profit Summary"],
   ["financial-summary", "Financial Summary"],
