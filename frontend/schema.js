@@ -130,9 +130,9 @@ const tables = {
       "product_id",
     ],
     fields: [
-      input("transaction_date", "Transaction date", "date", true),
-      select("transaction_type", "Transaction type", TRANSACTION_OPTIONS),
-      input("transaction_quantity", "Quantity", "number", true, "1", "1"),
+      input("transaction_date", "Inventory transaction date", "date", true),
+      select("transaction_type", "Inventory transaction type", TRANSACTION_OPTIONS),
+      input("transaction_quantity", "Inventory transaction quantity", "number", true, "1", "1"),
       input("unit_price", "Unit price", "number", true, "0", "0.01"),
       lookup("product_id", "Product", "/products", "product_id", ["product_name", "status"]),
     ],

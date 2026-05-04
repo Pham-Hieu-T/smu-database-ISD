@@ -69,5 +69,5 @@ The frontend should show `Backend Connected` when the app can reach MySQL.
 - Do not enter the database directly during the demo.
 - Use the browser GUI at `http://127.0.0.1:8000`.
 - If the frontend says the backend is offline, confirm MySQL is running and `backend/db_config.json` is correct.
-- Purchase Records only document where inventory came from. Use Transactions when you want the app to change product quantity.
+- Purchase Records only document where inventory came from. Use Inventory Transactions when you want the app to change product quantity.
 - When packaging the final project, do not include the parent-folder `5330s26projdescription.pdf`; it describes a different social-media assignment, not this inventory app.

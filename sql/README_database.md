@@ -108,7 +108,7 @@ Ten queries written to answer real operational questions:
 | 3 | Product Status Report | How many product types and units are in each status category? |
 | 4 | Inventory Aging Report | Which products have been sitting over 30 days? |
 | 5 | Supplier Purchase History | How many units were bought from each supplier and at what total cost? |
-| 6 | Full Transaction History | What is the complete event log for every product? |
+| 6 | Full Inventory Transaction History | What is the complete event log for every product? |
 | 7 | Sales History with Profit | For every April sale, what was the profit per unit and total? |
 | 8 | Cost and Profit Summary | Which products generated the most profit and what were their margins? |
 | 9 | Overall Financial Summary | What is the complete April 2026 financial picture in one view? |
