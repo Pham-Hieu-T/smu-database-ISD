@@ -286,6 +286,8 @@ INSERT INTO Inventory_Transaction (transaction_date, transaction_type, transacti
 ('2026-04-27', 'SALE', 1,  400.00, 46),  -- HTB600
 ('2026-04-28', 'SALE', 1,  228.00, 34),  -- STRDH590
 ('2026-04-28', 'SALE', 1,  331.00, 35),  -- STRDH790
+('2026-04-28', 'SALE', 1,  331.00, 35),  -- STRDH790
+('2026-04-28', 'SALE', 1,  331.00, 35),  -- STRDH790
 ('2026-04-28', 'SALE', 1,  599.00, 19),  -- SDM27Q10SB
 ('2026-04-28', 'SALE', 1,  554.00, 33);  -- STRAN1000
 

@@ -125,6 +125,42 @@ FROM Product
 WHERE status = 'SOLD'
   AND (product_quantity <> 0 OR date_sold IS NULL);
 
+SELECT
+    p.product_id,
+    p.product_name,
+    p.product_quantity,
+    COALESCE(SUM(
+        CASE
+            WHEN it.transaction_type IN ('PURCHASE', 'TRANSFER_IN', 'ADJUSTMENT_IN', 'RETURN')
+                THEN it.transaction_quantity
+            WHEN it.transaction_type IN ('SALE', 'TRANSFER_OUT', 'ADJUSTMENT_OUT')
+                THEN -it.transaction_quantity
+            ELSE 0
+        END
+    ), 0) AS quantity_from_transactions
+FROM Product AS p
+LEFT JOIN Inventory_Transaction AS it
+    ON it.product_id = p.product_id
+GROUP BY p.product_id, p.product_name, p.product_quantity
+HAVING p.product_quantity <> quantity_from_transactions;
+
+SELECT
+    p.product_id,
+    p.product_name,
+    p.profit,
+    ROUND(COALESCE(SUM(
+        CASE
+            WHEN it.transaction_type = 'SALE'
+                THEN (it.unit_price - p.cost) * it.transaction_quantity
+            ELSE 0
+        END
+    ), 0), 2) AS profit_from_sales
+FROM Product AS p
+LEFT JOIN Inventory_Transaction AS it
+    ON it.product_id = p.product_id
+GROUP BY p.product_id, p.product_name, p.profit
+HAVING ABS(p.profit - profit_from_sales) > 0.01;
+
 -- These are some tests to test things that I think he would try to break
 -- Uncomment and run these one at a time only if you want to prove constraints work
 --
