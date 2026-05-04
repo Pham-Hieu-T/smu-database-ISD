@@ -10,7 +10,7 @@ Run the files in this order:
 
 1. `01_create_database.sql` — creates the `inventory_storage_db` database
 2. `02_create_tables.sql` — defines all five tables, constraints, and the trigger
-3. `03_seed_data.sql` — loads real business data (50 products, 210 units, 63 sales, April 2026)
+3. `03_seed_data.sql` — loads real business data (50 products, 210 units, 65 sales, April 2026)
 4. `04_test_queries.sql` — validation checks and demo queries to confirm setup
 5. `05_queries.sql` — ten business queries covering inventory, profit, aging, and financials
 
@@ -91,7 +91,7 @@ The seed data reflects real April 2026 inventory from an Amazon reselling operat
 - **1 supplier** — Direct Supply (auction source)
 - **50 products** across all three units
 - **210 total units** purchased
-- **63 sale transactions** recorded April 1–28, 2026
+- **65 sale transactions** recorded April 1–28, 2026
 
 The file drops and recreates the `prevent_negative_inventory` trigger around the INSERT block so that bulk seed data loads without false constraint violations.
 
